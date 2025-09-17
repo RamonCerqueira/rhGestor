@@ -25,6 +25,7 @@ export default function DashboardPage() {
     employeesAlert: 0,
     documentsExpiringSoon: 0,
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
