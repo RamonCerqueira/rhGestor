@@ -1,3 +1,5 @@
+
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 class ApiClient {
@@ -117,15 +119,15 @@ class ApiClient {
     });
   }
 
-  async getDashboardStats() {
-    return this.request<{
-      totalEmployees: number;
-      employeesOK: number;
-      employeesPending: number;
-      employeesAlert: number;
-      documentsExpiringSoon: number;
-    }>('/employees/stats/dashboard');
-  }
+  // async getDashboardStats() {
+  //   return this.request<{
+  //     totalEmployees: number;
+  //     employeesOK: number;
+  //     employeesPending: number;
+  //     employeesAlert: number;
+  //     documentsExpiringSoon: number;
+  //   }>('/employees/stats/dashboard');
+  // }
 
   // Document methods
   async getEmployeeDocuments(employeeId: number) {
@@ -178,6 +180,23 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
+  }
+
+  async getDocumentStatsByStatus() {
+    return this.request<Array<{
+      status: string;
+      count: number;
+    }>>('/documents/stats/by-status');
+  }
+
+  async getDashboardStats() {
+    return this.request<{
+      totalEmployees: number;
+      employeesOK: number;
+      employeesPending: number;
+      employeesAlert: number;
+      documentsExpiringSoon: number;
+    }>('/employees/stats/dashboard');
   }
 }
 

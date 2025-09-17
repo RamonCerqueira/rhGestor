@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import DocumentsChart from '@/components/DocumentsChart';
+import { api } from '@/lib/api';
 
 interface DashboardStats {
   totalEmployees: number;
@@ -12,6 +16,8 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     employeesOK: 0,
@@ -19,17 +25,35 @@ export default function DashboardPage() {
     employeesAlert: 0,
     documentsExpiringSoon: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Dados simulados - será substituído pela chamada da API
-    setStats({
-      totalEmployees: 25,
-      employeesOK: 18,
-      employeesPending: 5,
-      employeesAlert: 2,
-      documentsExpiringSoon: 3,
-    });
+    const fetchStats = async () => {
+      try {
+        const dashboardStats = await api.getDashboardStats();
+        setStats(dashboardStats);
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+        // Fallback para dados simulados
+        setStats({
+          totalEmployees: 3,
+          employeesOK: 1,
+          employeesPending: 1,
+          employeesAlert: 1,
+          documentsExpiringSoon: 1,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   const cards = [
     {
@@ -112,8 +136,11 @@ export default function DashboardPage() {
               <h1 className="text-xl font-semibold text-gray-900">Doc-Gestor RH</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Bem-vindo, Usuário!</span>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors">
+              <span className="text-sm text-gray-600">Bem-vindo, {user?.name || 'Usuário'}!</span>
+              <button 
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors"
+              >
                 Sair
               </button>
             </div>
@@ -141,28 +168,34 @@ export default function DashboardPage() {
         </div>
 
         {/* Lembretes e Alertas */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Lembretes e Ações Críticas</h2>
-          <div className="space-y-3">
-            <div className="flex items-center p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-              <div className="text-yellow-600 mr-3">⚠️</div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {stats.documentsExpiringSoon} documentos vencendo nos próximos 30 dias
-                </p>
-                <p className="text-xs text-gray-600">Verifique os exames periódicos e contratos</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Lembretes */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Lembretes e Ações Críticas</h2>
+            <div className="space-y-3">
+              <div className="flex items-center p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                <div className="text-yellow-600 mr-3">⚠️</div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {stats.documentsExpiringSoon} documentos vencendo nos próximos 30 dias
+                  </p>
+                  <p className="text-xs text-gray-600">Verifique os exames periódicos e contratos</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-              <div className="text-blue-600 mr-3">📋</div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {stats.employeesPending} funcionários com documentação pendente
-                </p>
-                <p className="text-xs text-gray-600">Documentos de admissão em falta</p>
+              <div className="flex items-center p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                <div className="text-blue-600 mr-3">📋</div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {stats.employeesPending} funcionários com documentação pendente
+                  </p>
+                  <p className="text-xs text-gray-600">Documentos de admissão em falta</p>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Gráfico de Documentos */}
+          <DocumentsChart />
         </div>
 
         {/* Ações Rápidas */}
@@ -192,4 +225,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
