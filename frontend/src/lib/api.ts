@@ -1,6 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 class ApiClient {
   private baseURL: string;
@@ -78,11 +78,11 @@ class ApiClient {
 
   // Employee methods
   async getEmployees() {
-    return this.request<any[]>('/employees');
+    return this.request<unknown[]>('/employees');
   }
 
   async getEmployee(id: number) {
-    return this.request<any>(`/employees/${id}`);
+    return this.request<unknown>(`/employees/${id}`);
   }
 
   async createEmployee(employeeData: {
@@ -93,7 +93,7 @@ class ApiClient {
     department: string;
     hireDate?: string;
   }) {
-    return this.request<any>('/employees', {
+    return this.request<unknown>('/employees', {
       method: 'POST',
       body: JSON.stringify(employeeData),
     });
@@ -107,7 +107,7 @@ class ApiClient {
     department: string;
     hireDate: string;
   }>) {
-    return this.request<any>(`/employees/${id}`, {
+    return this.request<unknown>(`/employees/${id}`, {
       method: 'PUT',
       body: JSON.stringify(employeeData),
     });
@@ -119,19 +119,19 @@ class ApiClient {
     });
   }
 
-  async getDashboardStats() {
-    return this.request<{
-      totalEmployees: number;
-      employeesOK: number;
-      employeesPending: number;
-      employeesAlert: number;
-      documentsExpiringSoon: number;
-    }>('/employees/stats/dashboard');
-  }
+  // async getDashboardStats() {
+  //   return this.request<{
+  //     totalEmployees: number;
+  //     employeesOK: number;
+  //     employeesPending: number;
+  //     employeesAlert: number;
+  //     documentsExpiringSoon: number;
+  //   }>('/employees/stats/dashboard');
+  // }
 
   // Document methods
   async getEmployeeDocuments(employeeId: number) {
-    return this.request<any[]>(`/documents/employee/${employeeId}`);
+    return this.request<unknown[]>(`/documents/employee/${employeeId}`);
   }
 
   async uploadDocument(formData: FormData) {
@@ -176,13 +176,29 @@ class ApiClient {
   }
 
   async updateDocumentStatus(id: number, status: string) {
-    return this.request<any>(`/documents/${id}/status`, {
+    return this.request<unknown>(`/documents/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
+  }
+
+  async getDocumentStatsByStatus() {
+    return this.request<Array<{
+      status: string;
+      count: number;
+    }>>('/documents/stats/by-status');
+  }
+
+  async getDashboardStats() {
+    return this.request<{
+      totalEmployees: number;
+      employeesOK: number;
+      employeesPending: number;
+      employeesAlert: number;
+      documentsExpiringSoon: number;
+    }>('/employees/stats/dashboard');
   }
 }
 
 export const api = new ApiClient(API_BASE_URL);
 export default api;
-
