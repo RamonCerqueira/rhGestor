@@ -41,17 +41,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await api.login(email, password);
-      
+  
+      // Salvar token e usuário
       setToken(response.token);
       setUser(response.user);
-      
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
+      alert(error.message || 'Erro ao tentar fazer login'); // mostra feedback ao usuário
       throw error;
     }
   };
+ 
+  // const login = async (email: string, password: string) => {
+  //   try {
+  //     const response = await api.login(email, password);
+      
+  //     setToken(response.token);
+  //     setUser(response.user);
+      
+  //     localStorage.setItem('token', response.token);
+  //     localStorage.setItem('user', JSON.stringify(response.user));
+  //   } catch (error) {
+  //     console.error('Login failed:', error);
+  //     throw error;
+  //   }
+  // };
 
   const logout = () => {
     setUser(null);

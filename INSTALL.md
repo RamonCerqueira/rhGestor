@@ -33,7 +33,7 @@ cd doc-gestor-rh
 - Backend: http://localhost:5000
 
 ### Usuários de Teste
-- **Admin**: admin@docgestor.com / admin123 /$2b$10$reLiE8w0/97v5vqgKtJDlOXA/Vww0Y6hPmvQL7SKxRh/KkQ4FN3VG
+- **Admin**: admin@docgestor.com / admin123
 - **User**: user@docgestor.com / user123
 
 ---
